@@ -210,3 +210,47 @@ STATUS 200:
         }
     ]
 }
+
+04 LIST REMOVE (AUTH PROTECTED ROUTE)
+
+POST: "http://localhost:5555/list/lististouristregistered/:listid"
+
+request header:
+
+x-auth-token: ""
+
+request body:
+
+NO BODY
+
+responses:
+STATUS 401:
+{
+    message: "Access denied."
+}
+
+STATUS 401:
+{
+    message: "Register first."
+}
+
+STATUS 404:
+{
+    message: "List not found."
+}
+
+STATUS 500:
+{
+    message: "Server error", error: error.message
+}
+
+STATUS 200:
+
+{
+    "message": "Tourist is registered..",
+}
+
+STATUS 203:
+{
+    "message": "Tourist is not registered.",
+}

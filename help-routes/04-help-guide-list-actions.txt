@@ -292,3 +292,41 @@ STATUS 200:
         "__v": 1
     }
 }
+04 LIST DELETE (AUTH PROTECTED ROUTE)
+
+POST: "http://localhost:5555/list/listdelete/:listid"
+
+request header:
+
+x-auth-token: ""
+
+request body:
+
+NO BODY
+
+responses:
+STATUS 401:
+{
+    message: "Access denied."
+}
+
+STATUS 401:
+{
+    message: "Register first."
+}
+
+STATUS 404:
+{
+    message: "List not found."
+}
+
+STATUS 500:
+{
+    message: "Server error", error: error.message
+}
+
+STATUS 200:
+
+{
+    "message": "List deleted successfully",
+}

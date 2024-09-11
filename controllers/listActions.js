@@ -203,6 +203,43 @@ export const listDisplayGuideDetail = async (req, res) => {
   }
 };
 
+// Delete a list
+export const listDelete = async (req, res) => {
+  try {
+    // check if user is logged in
+    if (!req.decodedUserId) {
+      return res.status(401).send({ message: "Access denied." });
+    }
+
+    // get the User object
+    const guideId = req.decodedUserId;
+    let guide = await Guide.findById(guideId);
+    if (!guide) {
+      return res.status(401).send({ message: "Register first." });
+    }
+
+    // Check if the list exists
+    const listId = req.params.listid;
+    let list = await List.findById(listId);
+
+    if (!list) {
+      return res.status(404).send({ message: "List not found." });
+    } else {
+      // Delete the list
+      await list.deleteOne();
+
+      return res
+        .status(200)
+        .send({ message: "List deleted successfully" });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: "Server error", error: error.message });
+  }
+};
+
+
 // ---------- TOURIST LIST ACTIONS ----------
 /*
 {
@@ -365,6 +402,98 @@ export const listDisplayTouristDetail = async (req, res) => {
     return res.status(200).send({
       list: structuredList
     });
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: "Server error", error: error.message });
+  }
+};
+
+// checks whether a toursit is present in the list
+export const listIsTouristRegistered = async (req, res) => {
+  try {
+    // Check if user is logged in
+    if (!req.decodedUserId) {
+      return res.status(401).send({ message: "Access denied." });
+    }
+
+    // Get the tourist ID from the decoded token
+    const touristId = req.decodedUserId;
+
+    // Find the tourist by ID
+    let tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(401).send({ message: "Register first." });
+    }
+
+    // Get the list ID from the request parameters
+    const listId = req.params.listid;
+
+    // Find the list by ID
+    let list = await List.findById(listId);
+
+    // Check if the list exists
+    if (!list) {
+      return res.status(404).send({ message: "List not found." });
+    }
+
+    // Check if the tourist is registered in the list
+    const isRegistered = list.touristData.some(
+      (touristEntry) => touristEntry.tourist.toString() === touristId.toString()
+    );
+
+    if (isRegistered) {
+      return res.status(200).send({ message: "Tourist is registred." });
+    } else {
+      return res.status(203).send({ message: "Tourist is not registered." });
+    }
+  } catch (error) {
+    return res
+      .status(500)
+      .send({ message: "Server error", error: error.message });
+  }
+};
+
+// opt out from a list
+export const listRemove = async (req, res) => {
+  try {
+    // check if user is logged in
+    if (!req.decodedUserId) {
+      return res.status(401).send({ message: "Access denied." });
+    }
+
+    // get the User object
+    const touristId = req.decodedUserId;
+    let tourist = await Tourist.findById(touristId);
+    if (!tourist) {
+      return res.status(401).send({ message: "Register first." });
+    }
+
+    // Check if the list exists
+    const listId = req.params.listid;
+    let list = await List.findById(listId);
+
+    if (!list) {
+      return res.status(404).send({ message: "List not found." });
+    } else {
+      // Remove the tourist from the list's touristData
+      list.touristData = list.touristData.filter(
+        (touristEntry) => touristEntry.tourist.toString() !== touristId.toString()
+      );
+
+      // Save the updated list
+      list = await list.save();
+
+      // Remove the list from the tourist's lists array
+      tourist.lists = tourist.lists.filter(
+        (listId) => listId.toString() !== list._id.toString()
+      );
+
+      // Save the updated tourist
+      await tourist.save();
+
+      return res.status(200).send({ message: "Removed from list successfully", list});
+    }
   } catch (error) {
     return res
       .status(500)

@@ -8,6 +8,9 @@ import {
   listDisplayGuideDetail,
   listDisplayTouristList,
   listDisplayTouristDetail,
+  listDelete,
+  listRemove,
+  listIsTouristRegistered
 } from "../controllers/listActions.js";
 
 const router = express.Router();
@@ -19,5 +22,7 @@ router.get("/listdiplayguidelist", auth, listDisplayGuideList);
 router.get("/listdiplayguidedetail/:listid", auth, listDisplayGuideDetail);
 router.get("/listdiplaytouristlist", auth, listDisplayTouristList);
 router.get("/listdiplaytouristdetail/:listid", auth, listDisplayTouristDetail);
-
+router.post("/listdelete/:listid", auth, listDelete);
+router.post("/listremove/:listid", auth, listRemove)
+router.get("/lististouristregistered/:listid", auth, listIsTouristRegistered);
 export default router;
